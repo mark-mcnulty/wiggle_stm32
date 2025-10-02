@@ -45,7 +45,7 @@ void seven_seg_init(struct Seven_Seg *self) {
  * @brief  Function called during timer event. It will set
  * 		   the seven segment display to the next active
  * 		   digits value and swap what digit is on. This
- * 		   should happen about every 60 Hz per digit.
+ * 		   should happen about every 60 Hz per digit... 120 Hz
  * @param  None
  * @retval None
  */
