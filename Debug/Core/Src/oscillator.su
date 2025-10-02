@@ -1,0 +1,3 @@
+../Core/Src/oscillator.c:11:6:init_oscillator	32	static
+../Core/Src/oscillator.c:33:6:init_signal	32	static
+../Core/Src/oscillator.c:41:6:set_oscillator_freq	16	static

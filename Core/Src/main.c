@@ -21,7 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <math.h>
 #include "seven_seg.h"
+#include "oscillator.h"
 
 /* USER CODE END Includes */
 
@@ -87,11 +89,6 @@ static void uart_tx(const char *s)
 
 
 
-// NOTE CLASS
-#define WAV_LUT_SIZE 1024
-uint32_t acc;
-uint32_t inter_freq = 44100;
-uint16_t wav_lut[WAV_LUT_SIZE];
 
 
 
@@ -180,9 +177,6 @@ int main(void)
 
 		  // increment
 		  idx += 1;
-
-
-
 	  }
 
 	  //LED

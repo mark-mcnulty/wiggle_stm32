@@ -1,0 +1,3 @@
+../Core/Src/oscillator.c:11:6:init_oscillator	2
+../Core/Src/oscillator.c:33:6:init_signal	2
+../Core/Src/oscillator.c:41:6:set_oscillator_freq	1
