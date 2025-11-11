@@ -132,7 +132,7 @@ int main(void)
   seven_seg_init(&my_seven_seg);
 
   // initalize the oscillator
-  init_oscillator((struct Oscillator*)&my_tone, NOISE);
+  init_oscillator((struct Oscillator*)&my_tone, TRIANGLE);
 
   /* Start timer */
   // LED refresh

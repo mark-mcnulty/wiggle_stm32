@@ -2098,9 +2098,9 @@ void Error_Handler(void)
  8001596:	4d12      	ldr	r5, [pc, #72]	@ (80015e0 <main+0x70>)
  8001598:	4628      	mov	r0, r5
  800159a:	f000 f93f 	bl	800181c <seven_seg_init>
-  init_oscillator((struct Oscillator*)&my_tone, NOISE);
+  init_oscillator((struct Oscillator*)&my_tone, TRIANGLE);
  800159e:	4c11      	ldr	r4, [pc, #68]	@ (80015e4 <main+0x74>)
- 80015a0:	2104      	movs	r1, #4
+ 80015a0:	2102      	movs	r1, #2
  80015a2:	4620      	mov	r0, r4
  80015a4:	f000 f8da 	bl	800175c <init_oscillator>
   HAL_TIM_Base_Start_IT(&htim2);
