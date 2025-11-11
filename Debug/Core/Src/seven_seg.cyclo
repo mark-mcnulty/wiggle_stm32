@@ -1,5 +1,5 @@
 ../Core/Src/seven_seg.c:30:6:seven_seg_init	1
-../Core/Src/seven_seg.c:52:6:seven_seg_update	3
 ../Core/Src/seven_seg.c:83:6:seven_seg_set_value	3
 ../Core/Src/seven_seg.c:93:9:seven_seg_get_value	1
 ../Core/Src/seven_seg.c:97:6:send_segment_value_spi	1
+../Core/Src/seven_seg.c:52:6:seven_seg_update	3

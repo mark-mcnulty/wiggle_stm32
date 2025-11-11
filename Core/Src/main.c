@@ -24,6 +24,7 @@
 #include <math.h>
 #include "seven_seg.h"
 #include "oscillator.h"
+#include "note.h"
 
 /* USER CODE END Includes */
 
@@ -50,7 +51,7 @@ DAC_HandleTypeDef hdac;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart1;
 
@@ -66,32 +67,24 @@ static void MX_DAC_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM6_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
-
-
-
 struct Seven_Seg my_seven_seg;
+volatile struct Oscillator my_tone __attribute__((used));
 
 
-
+/*
 static void uart_tx(const char *s)
 {
   HAL_UART_Transmit(&huart1, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
 }
-
-
-
-
-
-
+*/
+uint16_t dac_value=0;
 
 
 /* USER CODE END 0 */
@@ -104,6 +97,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
+
 
   /* USER CODE END 1 */
 
@@ -130,16 +125,32 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   MX_TIM2_Init();
-  MX_TIM6_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   //define the struct that hosts seven_seg
   seven_seg_init(&my_seven_seg);
 
-  // Start timer
+  // initalize the oscillator
+  init_oscillator((struct Oscillator*)&my_tone, NOISE);
+
+  /* Start timer */
+  // LED refresh
+  // DAC output
   HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
 
 
+  uint8_t buf[16];
+  uint8_t idx  = 0;
+  uint8_t ch;
+
+  uint8_t value = 0x11;
+  seven_seg_set_value(&my_seven_seg, value);
+
+  int16_t increment = 1000;
+  my_tone.f_out = 1000;
 
   /* USER CODE END 2 */
 
@@ -150,11 +161,86 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  //hello world
-	  uint8_t buf[16];
-	  uint8_t idx  = 0;
-	  uint8_t ch;
 
+
+
+	  // TEST: testing out freq adjustment
+	  /*
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  my_tone.f_out += increment;
+	  if (my_tone.f_out > 22000 | my_tone.f_out < 1000){
+		  increment = increment * -1;
+	  }
+	  HAL_Delay(10000);
+		//*/
+
+
+	  // TEST: check freq accuracy
+
+	  my_tone.f_out = 333.3;
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  //*/
+
+	  // TEST: play marry had a little lamb
+	  /*
+	  my_tone.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_C][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(800);
+
+
+
+	  my_tone.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(400);
+
+	  my_tone.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  HAL_Delay(800);
+	  //*/
+
+	  //hello world
+
+	  //DAC usage
+	  /*
+	  my_tone.f_out = 100;
+	  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
+	  if (dac_value < 4095) {
+	  	dac_value += 1000;
+	  } else {
+	  	dac_value=0;
+	  }
+	  HAL_Delay(.01);
+	*/
+
+	  /*
 	  //UART
 	  uart_tx("\r\nEnter a number: ");
 
@@ -166,9 +252,7 @@ int main(void)
 		  // add to buffer
 		  buf[idx] = ch;
 
-		  /* Echo typed character back so the user sees it */
 
-		  /* Convert CR or LF (Enter key) to newline and break */
 		  if (ch == '\r' || ch == '\n')
 		  {
 			buf[idx] = '\0';
@@ -178,6 +262,7 @@ int main(void)
 		  // increment
 		  idx += 1;
 	  }
+		*/
 
 	  //LED
 	  //HAL_GPIO_TogglePin (LED_OUT_GPIO_Port, LED_OUT_Pin);
@@ -193,42 +278,14 @@ int main(void)
 //	  char transmit_buf[5] = {'\n', 'h', 'e', 'l', 'l', 'o'};
 //	  HAL_UART_Transmit(&huart1, &transmit_buf, sizeof(transmit_buf), HAL_MAX_DELAY);
 
+	  /*
 	  if (buf[1] == '\0'){
 		  seven_seg_set_value(&my_seven_seg, buf[0] & 0xF);
 
 	  } else if (buf[2] == '\0') {
 		  seven_seg_set_value(&my_seven_seg, ((buf[0] << 4) & 0xF0) + (buf[1] & 0xF));
 	  }
-	  //seven_seg_set_value(&my_seven_seg, (i << 4) + j);
-
-	  /*
-	  // loop through all the digits
-	  for(uint8_t i=0; i<0xB; i++){
-		  for (uint8_t j=0; j<0xB; j++){
-			  seven_seg_set_value(&my_seven_seg, (i << 4) + j);
-			  //send_segment_value_spi(&my_seven_seg);
-
-
-	//		  HAL_SPI_Transmit(&hspi1, (uint8_t*)&digitKey[i] , 1, HAL_MAX_DELAY);
-	//		  HAL_GPIO_TogglePin (SPI_LAT_GPIO_Port, SPI_LAT_Pin);
-	//		  HAL_GPIO_TogglePin (SPI_LAT_GPIO_Port, SPI_LAT_Pin);
-
-			  HAL_Delay(100);
-		  }
-
-	  }
 	  */
-
-
-
-
-	  //HAL_GPIO_TogglePin (SEVEN_SEG_DIG_0_GPIO_Port, SEVEN_SEG_DIG_0_Pin);
-	  //HAL_GPIO_TogglePin (SEVEN_SEG_DIG_1_GPIO_Port, SEVEN_SEG_DIG_1_Pin);
-
-	  /* Turn off all the Seven Seg */
-	  //HAL_GPIO_TogglePin (SPI_BLANK_GPIO_Port, SPI_BLANK_Pin);
-
-
   }
   /* USER CODE END 3 */
 }
@@ -249,7 +306,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI_DIV2;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -259,7 +318,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -447,40 +506,47 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief TIM6 Initialization Function
+  * @brief TIM3 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM6_Init(void)
+static void MX_TIM3_Init(void)
 {
 
-  /* USER CODE BEGIN TIM6_Init 0 */
+  /* USER CODE BEGIN TIM3_Init 0 */
 
-  /* USER CODE END TIM6_Init 0 */
+  /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  /* USER CODE BEGIN TIM6_Init 1 */
+  /* USER CODE BEGIN TIM3_Init 1 */
 
-  /* USER CODE END TIM6_Init 1 */
-  htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 6;
-  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 2;
-  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 3;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 124;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
   {
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM6_Init 2 */
+  /* USER CODE BEGIN TIM3_Init 2 */
 
-  /* USER CODE END TIM6_Init 2 */
+  /* USER CODE END TIM3_Init 2 */
 
 }
 
@@ -589,15 +655,22 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// check which timer brought us here
-	// did the seven segment display timer get us here?
-	if (htim == &htim2){
-		seven_seg_update(&my_seven_seg);
-	}
 
 	// did our interrupt get triggered to update the tone?
-	if (htim == &htim6){
+	if (htim->Instance == TIM3){
+		// HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
+		uint16_t s = get_next_value(&my_tone);
+		HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2,DAC_ALIGN_12B_R, s);
 
+		HAL_GPIO_TogglePin(GPIOB, LED_OUT_Pin);
 	}
+
+	// did the seven segment display timer get us here?
+	/*
+	if (htim->Instance == TIM2){
+		seven_seg_update(&my_seven_seg);
+	}
+	*/
 
 }
 

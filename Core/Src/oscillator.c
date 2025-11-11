@@ -6,57 +6,105 @@
  */
 #include "oscillator.h"
 
-/*
- * things that need to be checked
- * 1) what is the LUT_bit_num value? is it 10? Should be.
- */
-
-
 /**
  * @brief  	Function will initialize the "oscillator" object
  * @param  	struct Oscillator *self
  * @retval 	None
  */
-void init_oscillator(struct Oscillator *self) {
+void init_oscillator(volatile struct Oscillator *self, wave_shape shape_in) {
 	// set the constants from the clock
-	self->fclock = 1000000;		// 1Mhz is the input clock
-	self->PSC = 6;				// this is the pre-scaler set on tim6
-	self->ARR = 2;				// this is the auto reload register
-	self->fstep = (self->fclock / ((1 + self->PSC) * (1 + self->ARR)));
+	self->fclock = 24000000.0f;		// 1Mhz is the input clock
+	self->PSC = 3;				// this is the pre-scaler set on tim6
+	self->ARR = 124;				// this is the auto reload register
+	self->f_inter = ((float)self->fclock / ((1.0f + self->PSC) * (1.0f + self->ARR)));
 
 	// initialize the lookup table as empty
 	for (int i = 0; i < LUT_SIZE; i++) {
 		self->wav_LUT[i] = 0;
 	}
 
+	// set the frequency of the the output wave
+	self->f_out = 333;
+
 	// start the phase accumulator at 0
 	self->phase_acc = 0x00000000;
 
 	// start the phase_inc
-	self->phase_inc = 0x0;
+	self->phase_step = 0x0;
 
-	// set the frequency of the the output wave
-	self->fout = 333;
+	// Initialize the signal
+	self->shape = shape_in;
+	init_signal(self);
 
 	// set the amount of bits are used in the phase acc used for the LUT
-	self->LUT_bit_num = log(LUT_SIZE) / log(2) ;
+	self->LUT_bit_num = 10;  				   //log(LUT_SIZE) / log(2) ;
+
+	// set the phase step to proper step for frequency.
+	set_oscillator_freq(self, self->f_out);
 }
 
 /**
- * @brief  	This function will initialize the LUT with a waveform. It might
+ * @brief  	This function will initialize the LUT with a waveform. It inits
+ * 			with a sin wave to the table.
  *
  * @param  	struct Oscillator *self:
  * 			uint32_t freq: this is the frequency in Hz
  * @retval 	None
  */
-void init_signal(struct Oscillator *self){
-	// set each index of the wav_LUT to a value in a sin wave.
-	// The DAC is 12 bits wide to multiply that by (2^12 - 1)
-	for (int i = 0; i < LUT_SIZE; i++){
-        double theta = (2.0 * 3.14 / LUT_SIZE) * i ;
-		self->wav_LUT[i] = (uint16_t)((sinf(theta) * 0.5 + 0.5) * 4095);
-	}
-}
+void init_signal(volatile struct Oscillator *self){
+	float step_size = 0;
+	float sum = 0;
+	switch (self->shape){
+		case SINE:
+			// set each index of the wav_LUT to a value in a sin wave.
+			// The DAC is 12 bits wide to multiply that by (2^12 - 1)
+			for (int i=0; i<LUT_SIZE; i++){
+				float theta = (2.0f * (float)M_PI / (float)LUT_SIZE) * i ;
+				self->wav_LUT[i] = (uint16_t)((sinf(theta) * 0.5f + 0.5f) * 4095.0f);
+			}
+			break;
+
+		case SQUARE:
+			for (int i=0; i<LUT_SIZE; i++){
+				// first half of wave gets value of 0
+				if (i <= ((LUT_SIZE/2) - 1)) {
+					self->wav_LUT[i] = (uint16_t)(0.0f);
+				} else if (i >= LUT_SIZE/2) {
+					self->wav_LUT[i] = (uint16_t)(4095.0f);
+				}
+
+			}
+			break;
+
+		case TRIANGLE:
+			step_size = (4095.0f) / (LUT_SIZE / 2);
+			sum = 0;
+			for (int i=0; i<LUT_SIZE; i++){
+				if (i <= ((LUT_SIZE/2) - 1)) {
+					self->wav_LUT[i] = sum;
+					sum = sum + step_size;
+				} else if (i >= LUT_SIZE/2) {
+					self->wav_LUT[i] = sum;
+					sum = sum - step_size;
+				}
+			}
+			break;
+
+		case SAW:
+			step_size = 4095.0f / LUT_SIZE;
+			for (int i=0; i<LUT_SIZE; i++){
+				self->wav_LUT[i] = (uint16_t)(i * step_size);
+			}
+			break;
+
+		case NOISE:
+			for (int i=0; i<LUT_SIZE; i++){
+				self->wav_LUT[i] = (uint16_t)((((float)rand() / RAND_MAX) * 4095.0f));
+			}
+
+			break;
+	} // end switch statement
+} // end init_signal
 
 /**
  * @brief  	Function is called by user to set the oscillators output
@@ -66,13 +114,27 @@ void init_signal(struct Oscillator *self){
  * 			uint32_t freq: this is the frequency in Hz
  * @retval 	None
  */
-void set_oscillator_freq(struct Oscillator *self, uint32_t freq) {
-	self->phase_inc = (uint32_t)( (freq * 2^32) / self->fstep );
+void set_oscillator_freq(volatile struct Oscillator *self, uint32_t freq_out) {
+	self->f_out = freq_out;
+	uint64_t full = ((uint64_t)freq_out << 32);
+	//self->phase_step = (uint32_t)( (freq_out << 32) / self->f_inter );
+	self->phase_step = (uint32_t)(full/(uint64_t)self->f_inter);
 }
 
 
-// get the next value in the table
-uint16_t get_next_value(struct Oscillator *self) {
-	self->phase_acc += self->phase_inc;
+/**
+ * @brief  	This function is called every time there is an interrupt.
+ * 			It will take the phase accumulator and add the phase step.
+ * 			then it will take the 10 top bits from the phase accumulator
+ * 			and use those as what position we are in the LUT / wave.
+ *
+ * @param  	struct Oscillator *self:
+ * @retval 	returns uint16_t value for the DAC.
+ */
+uint16_t get_next_value(volatile struct Oscillator *self) {
+	// accumulate your phase step
+	self->phase_acc += self->phase_step;
+
+	// pull the top 10 bits off of the phase accumulator. Using a right bit shift.
 	return self->wav_LUT[self->phase_acc >> (32 - self->LUT_bit_num)];
 }
