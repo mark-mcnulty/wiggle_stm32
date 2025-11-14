@@ -28,23 +28,27 @@ typedef enum {
 
 
 struct Oscillator {
+	// related to interrupt
+	uint32_t PSC;
+	uint32_t ARR;
 	float fclock;
 	float f_inter;
 	float f_out;
-	uint16_t PSC;
-	uint16_t ARR;
 
+	// used to synthesize the sound
 	uint16_t wav_LUT[LUT_SIZE];
 	uint32_t phase_acc;
 	uint32_t phase_step;
 	uint8_t LUT_bit_num;
-
 	wave_shape shape;
+
+	// inputs to the
+	uint32_t cv;
 };
 
 
 // constructor of the class
-void init_oscillator(volatile struct Oscillator *self, wave_shape shape);
+void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, wave_shape shape);
 
 // set the waveform
 void init_signal(volatile struct Oscillator *self);
@@ -54,6 +58,9 @@ void set_oscillator_freq(volatile struct Oscillator *self, uint32_t freq);
 
 // get next the next value of the lut
 uint16_t get_next_value(volatile struct Oscillator *self);
+
+// render the memory block for the DMA fot the DAC to sample
+void render_memory_block(volatile struct Oscillator *self);
 
 
 #endif /* INC_OSCILLATOR_H_ */

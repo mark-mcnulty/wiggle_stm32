@@ -11,35 +11,20 @@
  * @param  	struct Oscillator *self
  * @retval 	None
  */
-void init_oscillator(volatile struct Oscillator *self, wave_shape shape_in) {
+void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, wave_shape shape_in) {
 	// set the constants from the clock
-	self->fclock = 24000000.0f;		// 1Mhz is the input clock
-	self->PSC = 3;				// this is the pre-scaler set on tim6
-	self->ARR = 124;				// this is the auto reload register
+	self->PSC = htim->Instance->PSC;													// this is the pre-scaler set on tim6
+	self->ARR = htim->Instance->ARR;													// this is the auto reload register
+	self->fclock = HAL_RCC_GetPCLK1Freq();												// 24Mhz is the input clock
+	self->f_out = 333;																	// arbitrary value for now.
 	self->f_inter = ((float)self->fclock / ((1.0f + self->PSC) * (1.0f + self->ARR)));
 
-	// initialize the lookup table as empty
-	for (int i = 0; i < LUT_SIZE; i++) {
-		self->wav_LUT[i] = 0;
-	}
-
-	// set the frequency of the the output wave
-	self->f_out = 333;
-
 	// start the phase accumulator at 0
-	self->phase_acc = 0x00000000;
-
-	// start the phase_inc
-	self->phase_step = 0x0;
-
-	// Initialize the signal
 	self->shape = shape_in;
-	init_signal(self);
-
-	// set the amount of bits are used in the phase acc used for the LUT
+	self->phase_acc = 0x00000000;
+	self->phase_step = 0x0;
 	self->LUT_bit_num = 10;  				   //log(LUT_SIZE) / log(2) ;
-
-	// set the phase step to proper step for frequency.
+	init_signal(self);
 	set_oscillator_freq(self, self->f_out);
 }
 
@@ -101,8 +86,8 @@ void init_signal(volatile struct Oscillator *self){
 			for (int i=0; i<LUT_SIZE; i++){
 				self->wav_LUT[i] = (uint16_t)((((float)rand() / RAND_MAX) * 4095.0f));
 			}
-
 			break;
+
 	} // end switch statement
 } // end init_signal
 

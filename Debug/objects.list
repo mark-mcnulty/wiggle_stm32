@@ -1,5 +1,6 @@
+"./Core/Src/filter.o"
 "./Core/Src/main.o"
-"./Core/Src/note.o"
+"./Core/Src/mixer.o"
 "./Core/Src/oscillator.o"
 "./Core/Src/seven_seg.o"
 "./Core/Src/stm32f1xx_hal_msp.o"
