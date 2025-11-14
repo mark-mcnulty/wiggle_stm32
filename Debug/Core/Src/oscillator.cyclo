@@ -1,4 +1,4 @@
-../Core/Src/oscillator.c:49:6:init_signal	13
-../Core/Src/oscillator.c:112:6:set_oscillator_freq	1
+../Core/Src/oscillator.c:39:6:init_signal_LUT	13
+../Core/Src/oscillator.c:102:6:set_oscillator_freq	1
 ../Core/Src/oscillator.c:14:6:init_oscillator	1
-../Core/Src/oscillator.c:129:10:get_next_value	1
+../Core/Src/oscillator.c:119:10:get_next_value	1

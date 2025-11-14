@@ -51,7 +51,7 @@ struct Oscillator {
 void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, wave_shape shape);
 
 // set the waveform
-void init_signal(volatile struct Oscillator *self);
+void init_signal_LUT(volatile struct Oscillator *self);
 
 // set oscillator frequency
 void set_oscillator_freq(volatile struct Oscillator *self, uint32_t freq);

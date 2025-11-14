@@ -24,7 +24,7 @@ void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, 
 	self->phase_acc = 0x00000000;
 	self->phase_step = 0x0;
 	self->LUT_bit_num = 10;  				   //log(LUT_SIZE) / log(2) ;
-	init_signal(self);
+	init_signal_LUT(self);
 	set_oscillator_freq(self, self->f_out);
 }
 
@@ -36,7 +36,7 @@ void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, 
  * 			uint32_t freq: this is the frequency in Hz
  * @retval 	None
  */
-void init_signal(volatile struct Oscillator *self){
+void init_signal_LUT(volatile struct Oscillator *self){
 	float step_size = 0;
 	float sum = 0;
 	switch (self->shape){
