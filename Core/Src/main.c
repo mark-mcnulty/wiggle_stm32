@@ -137,7 +137,7 @@ int main(void)
   // Initialize the oscillator
   //init_oscillator((struct Oscillator*)&my_tone, &htim6, TRIANGLE);
   //HAL_TIM_Base_Start_IT(&htim6);
-  init_stm32_synth(&my_synth, SYNTH, &htim6, &hdac, SAW);
+  init_stm32_synth(&my_synth, SYNTH, &htim6, &hdac, SINE);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2,  (uint32_t*)my_synth.audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
 
   /* Start timer */
@@ -181,7 +181,7 @@ int main(void)
 
 
 	  // TEST: check freq accuracy
-
+	  /*
 	  my_synth.osc1.f_out = 1000;
 	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
 	  HAL_Delay(400);
@@ -192,48 +192,7 @@ int main(void)
 	  //*/
 
 	  // TEST: play marry had a little lamb
-	  /*
-	  my_tone.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_C][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(800);
-
-
-
-	  my_tone.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(400);
-
-	  my_tone.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
-	  HAL_Delay(800);
+	  marry_had_a_little_lamb(&my_synth);
 	  //*/
 
 	  //hello world

@@ -8,6 +8,8 @@
 #ifndef INC_STM32_SYNTH_H_
 #define INC_STM32_SYNTH_H_
 
+#include "notes.h"
+
 #include "seven_seg.h"
 #include "oscillator.h"
 #include "mixer.h"
@@ -44,5 +46,7 @@ void init_stm32_synth(	volatile struct synth *self,
 						wave_shape shape_in);
 
 void render_audio_block(volatile struct synth *self);
+
+void marry_had_a_little_lamb(volatile struct synth *self);
 
 #endif /* INC_STM32_SYNTH_H_ */
