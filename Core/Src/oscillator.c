@@ -26,6 +26,9 @@ void init_oscillator(volatile struct Oscillator *self, TIM_HandleTypeDef *htim, 
 	self->LUT_bit_num = 10;  				   //log(LUT_SIZE) / log(2) ;
 	init_signal_LUT(self);
 	set_oscillator_freq(self, self->f_out);
+
+	// input signals to the oscillator
+	self->cv_in = 0;
 }
 
 /**

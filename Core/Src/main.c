@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
+#include "stm32_synth.h"
 #include "seven_seg.h"
 #include "oscillator.h"
 
@@ -75,8 +76,8 @@ static void MX_TIM6_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+volatile struct synth my_synth __attribute__((used));
 struct Seven_Seg my_seven_seg;
-volatile struct Oscillator my_tone __attribute__((used));
 
 
 /*
@@ -85,8 +86,6 @@ static void uart_tx(const char *s)
   HAL_UART_Transmit(&huart1, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
 }
 */
-#define AUDIO_BUFFER_SIZE 256
-uint16_t audio_buffer[AUDIO_BUFFER_SIZE];
 
 
 /* USER CODE END 0 */
@@ -131,19 +130,21 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
-  //define the struct that hosts seven_seg
+  // define the info for seven segment display
+  HAL_TIM_Base_Start_IT(&htim2);
   seven_seg_init(&my_seven_seg);
 
-  // initalize the oscillator
-  init_oscillator((struct Oscillator*)&my_tone, &htim6, TRIANGLE);
+  // Initialize the oscillator
+  //init_oscillator((struct Oscillator*)&my_tone, &htim6, TRIANGLE);
+  //HAL_TIM_Base_Start_IT(&htim6);
+  init_stm32_synth(&my_synth, SYNTH, &htim6, &hdac, SAW);
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2,  (uint32_t*)my_synth.audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
 
   /* Start timer */
   // LED refresh
   // DAC output
-  HAL_TIM_Base_Start_IT(&htim2);
   //HAL_TIM_Base_Start_IT(&htim3);
   //HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2,  (uint32_t*)audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
 
 
   uint8_t buf[16];
@@ -154,7 +155,7 @@ int main(void)
   seven_seg_set_value(&my_seven_seg, value);
 
   int16_t increment = 1000;
-  my_tone.f_out = 1000;
+  my_synth.osc1.f_out = 1000;
 
   /* USER CODE END 2 */
 
@@ -181,8 +182,13 @@ int main(void)
 
 	  // TEST: check freq accuracy
 
-	  my_tone.f_out = 333.3;
-	  set_oscillator_freq(&my_tone, my_tone.f_out);
+	  my_synth.osc1.f_out = 1000;
+	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
+	  HAL_Delay(400);
+
+	  my_synth.osc1.f_out = 100;
+	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
+	  HAL_Delay(400);
 	  //*/
 
 	  // TEST: play marry had a little lamb
@@ -620,8 +626,8 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SPI_LAT_Pin|SEVEN_SEG_DIG_0_Pin|SEVEN_SEG_DIG_1_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : Button_A_Pin Button_B_Pin */
-  GPIO_InitStruct.Pin = Button_A_Pin|Button_B_Pin;
+  /*Configure GPIO pins : PB10 Button_A_Pin Button_B_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|Button_A_Pin|Button_B_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -670,6 +676,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// check which timer brought us here
 
 	// did our interrupt get triggered to update the tone?
+	/*
 	if (htim->Instance == TIM6){
 		// HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
 		uint16_t s = get_next_value(&my_tone);
@@ -677,7 +684,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		HAL_GPIO_TogglePin(GPIOB, LED_OUT_Pin);
 	}
-
+	//*/
 	// did the seven segment display timer get us here?
 	/*
 	if (htim->Instance == TIM2){
@@ -688,14 +695,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 // We are half way through our memory, have to generate
-void HAL_DAC_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
+void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-    render_audio_block(&audio_buffer[0], AUDIO_BUFFER_SIZE/2);
+	render_audio_block(&my_synth);
 }
 
-void HAL_DAC_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
+void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-    render_audio_block(&audio_buffer[AUDIO_BUFFER_SIZE/2], AUDIO_BUFFER_SIZE/2);
+	render_audio_block(&my_synth);
 }
 
 /* USER CODE END 4 */

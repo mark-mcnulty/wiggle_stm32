@@ -42,8 +42,8 @@ struct Oscillator {
 	uint8_t LUT_bit_num;
 	wave_shape shape;
 
-	// inputs to the
-	uint32_t cv;
+	// inputs to the oscillator
+	uint32_t cv_in;
 };
 
 
@@ -58,9 +58,6 @@ void set_oscillator_freq(volatile struct Oscillator *self, uint32_t freq);
 
 // get next the next value of the lut
 uint16_t get_next_value(volatile struct Oscillator *self);
-
-// render the memory block for the DMA fot the DAC to sample
-void render_memory_block(volatile struct Oscillator *self);
 
 
 #endif /* INC_OSCILLATOR_H_ */

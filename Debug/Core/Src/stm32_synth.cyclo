@@ -1,0 +1,2 @@
+../Core/Src/stm32_synth.c:10:6:init_stm32_synth	2
+../Core/Src/stm32_synth.c:28:6:render_audio_block	3
