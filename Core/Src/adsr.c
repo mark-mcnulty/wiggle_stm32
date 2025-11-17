@@ -6,3 +6,6 @@
  */
 
 
+void adsr_init(volatile struct ADSR *self) {
+
+}

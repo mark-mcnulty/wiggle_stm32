@@ -181,33 +181,16 @@ int main(void)
 
 
 	  // TEST: check freq accuracy
-	  /*
-	  my_synth.osc1.f_out = 1000;
-	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
-	  HAL_Delay(400);
 
-	  my_synth.osc1.f_out = 100;
+	  my_synth.osc1.f_out = 9000;
 	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
 	  HAL_Delay(400);
 	  //*/
 
 	  // TEST: play marry had a little lamb
-	  marry_had_a_little_lamb(&my_synth);
+	  //marry_had_a_little_lamb(&my_synth);
 	  //*/
 
-	  //hello world
-
-	  //DAC usage
-	  /*
-	  my_tone.f_out = 100;
-	  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
-	  if (dac_value < 4095) {
-	  	dac_value += 1000;
-	  } else {
-	  	dac_value=0;
-	  }
-	  HAL_Delay(.01);
-	*/
 
 	  /*
 	  //UART
