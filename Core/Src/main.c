@@ -140,13 +140,6 @@ int main(void)
   init_stm32_synth(&my_synth, SYNTH, &htim6, &hdac, SINE);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2,  (uint32_t*)my_synth.audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
 
-  /* Start timer */
-  // LED refresh
-  // DAC output
-  //HAL_TIM_Base_Start_IT(&htim3);
-  //HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
-
-
   uint8_t buf[16];
   uint8_t idx  = 0;
   uint8_t ch;
