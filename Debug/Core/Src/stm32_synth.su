@@ -1,3 +1,3 @@
-../Core/Src/stm32_synth.c:10:6:init_stm32_synth	16	static
-../Core/Src/stm32_synth.c:28:6:render_audio_block	16	static
-../Core/Src/stm32_synth.c:52:6:marry_had_a_little_lamb	24	static
+../Core/Src/stm32_synth.c:16:6:init_stm32_synth	16	static
+../Core/Src/stm32_synth.c:42:6:render_audio_block	16	static
+../Core/Src/stm32_synth.c:66:6:marry_had_a_little_lamb	24	static

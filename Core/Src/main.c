@@ -148,7 +148,7 @@ int main(void)
   seven_seg_set_value(&my_seven_seg, value);
 
   int16_t increment = 1000;
-  my_synth.osc1.f_out = 1000;
+  my_synth.osc.f_out = 1000;
 
   /* USER CODE END 2 */
 
@@ -175,8 +175,8 @@ int main(void)
 
 	  // TEST: check freq accuracy
 
-	  my_synth.osc1.f_out = 9000;
-	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
+	  my_synth.osc.f_out = 9000;
+	  set_oscillator_freq(&my_synth.osc, my_synth.osc.f_out);
 	  HAL_Delay(400);
 	  //*/
 

@@ -25,7 +25,7 @@ typedef enum {
 
 
 struct synth {
-	struct Oscillator osc1;
+	struct Oscillator osc;
 	struct Mixer mix1;
 	struct Filter filt1;
 	struct ADSR adsr1;

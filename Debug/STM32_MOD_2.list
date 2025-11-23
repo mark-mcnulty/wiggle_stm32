@@ -27,27 +27,27 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  00007068  2**0
                   CONTENTS, READONLY
- 12 .debug_info   000178a2  00000000  00000000  00007091  2**0
+ 12 .debug_info   000178a8  00000000  00000000  00007091  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 0000323c  00000000  00000000  0001e933  2**0
+ 13 .debug_abbrev 00003265  00000000  00000000  0001e939  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_loclists 0000bc48  00000000  00000000  00021b6f  2**0
+ 14 .debug_loclists 0000bc48  00000000  00000000  00021b9e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_aranges 000011a0  00000000  00000000  0002d7b8  2**3
+ 15 .debug_aranges 000011a0  00000000  00000000  0002d7e8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_rnglists 00000d87  00000000  00000000  0002e958  2**0
+ 16 .debug_rnglists 00000d87  00000000  00000000  0002e988  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  0001bc7d  00000000  00000000  0002f6df  2**0
+ 17 .debug_macro  0001bc7d  00000000  00000000  0002f70f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   000197c1  00000000  00000000  0004b35c  2**0
+ 18 .debug_line   000197c0  00000000  00000000  0004b38c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000a4045  00000000  00000000  00064b1d  2**0
+ 19 .debug_str    000a4040  00000000  00000000  00064b4c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000043  00000000  00000000  00108b62  2**0
+ 20 .comment      00000043  00000000  00000000  00108b8c  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  00003d70  00000000  00000000  00108ba8  2**2
+ 21 .debug_frame  00003d70  00000000  00000000  00108bd0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_line_str 00000063  00000000  00000000  0010c918  2**0
+ 22 .debug_line_str 00000063  00000000  00000000  0010c940  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -2132,14 +2132,14 @@ void Error_Handler(void)
  80015d0:	2111      	movs	r1, #17
  80015d2:	4630      	mov	r0, r6
  80015d4:	f000 f940 	bl	8001858 <seven_seg_set_value>
-  my_synth.osc1.f_out = 1000;
+  my_synth.osc.f_out = 1000;
  80015d8:	4b0d      	ldr	r3, [pc, #52]	@ (8001610 <main+0xa0>)
  80015da:	6123      	str	r3, [r4, #16]
-	  my_synth.osc1.f_out = 9000;
+	  my_synth.osc.f_out = 9000;
  80015dc:	4c0a      	ldr	r4, [pc, #40]	@ (8001608 <main+0x98>)
  80015de:	4b0d      	ldr	r3, [pc, #52]	@ (8001614 <main+0xa4>)
  80015e0:	6123      	str	r3, [r4, #16]
-	  set_oscillator_freq(&my_synth.osc1, my_synth.osc1.f_out);
+	  set_oscillator_freq(&my_synth.osc, my_synth.osc.f_out);
  80015e2:	6920      	ldr	r0, [r4, #16]
  80015e4:	f7ff f918 	bl	8000818 <__aeabi_f2uiz>
  80015e8:	4601      	mov	r1, r0
@@ -2500,7 +2500,7 @@ void seven_seg_set_value(struct Seven_Seg *self, uint8_t value) {
  8001870:	e7fb      	b.n	800186a <seven_seg_set_value+0x12>
 
 08001872 <init_stm32_synth>:
-
+ */
 void init_stm32_synth(	volatile struct synth *self,
 						mode init_mode,
 						TIM_HandleTypeDef *htim,
@@ -2514,7 +2514,7 @@ void init_stm32_synth(	volatile struct synth *self,
 	HAL_TIM_Base_Start_IT(htim);
  8001878:	4610      	mov	r0, r2
  800187a:	f001 fcb9 	bl	80031f0 <HAL_TIM_Base_Start_IT>
-	init_oscillator(&self->osc1, htim, shape_in);
+	init_oscillator(&self->osc, htim, shape_in);
  800187e:	f89d 2010 	ldrb.w	r2, [sp, #16]
  8001882:	4621      	mov	r1, r4
  8001884:	4628      	mov	r0, r5
@@ -2524,7 +2524,7 @@ void init_stm32_synth(	volatile struct synth *self,
 	for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
  800188a:	2400      	movs	r4, #0
  800188c:	e008      	b.n	80018a0 <init_stm32_synth+0x2e>
-		self->audio_buffer[i] = get_next_value(&self->osc1);
+		self->audio_buffer[i] = get_next_value(&self->osc);
  800188e:	4628      	mov	r0, r5
  8001890:	f7ff ffbc 	bl	800180c <get_next_value>
  8001894:	f504 6386 	add.w	r3, r4, #1072	@ 0x430
@@ -2543,7 +2543,11 @@ void init_stm32_synth(	volatile struct synth *self,
  80018aa:	bd38      	pop	{r3, r4, r5, pc}
 
 080018ac <render_audio_block>:
-
+ *  		HAL_DACEx_ConvHalfCpltCallbackCh2: in main.c these functions call render audio block
+ *  		HAL_DACEx_ConvCpltCallbackCh2: in main.c these functions call render audio block
+ * @param   struct synth
+ * @retval  None.
+ */
 void render_audio_block(volatile struct synth *self){
  80018ac:	b538      	push	{r3, r4, r5, lr}
 	if (self->synth_mode == SYNTH){
@@ -2556,7 +2560,7 @@ void render_audio_block(volatile struct synth *self){
 	}
 }
  80018b4:	bd38      	pop	{r3, r4, r5, pc}
-			temp = get_next_value(&self->osc1);
+			temp = get_next_value(&self->osc);
  80018b6:	4628      	mov	r0, r5
  80018b8:	f7ff ffa8 	bl	800180c <get_next_value>
 			self->audio_buffer[i + self->audio_buffer_position] = temp;

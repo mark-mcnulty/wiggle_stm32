@@ -21,11 +21,11 @@ void init_stm32_synth(	volatile struct synth *self,
 
 	// begin constructing all the objects
 	HAL_TIM_Base_Start_IT(htim);
-	init_oscillator(&self->osc1, htim, shape_in);
+	init_oscillator(&self->osc, htim, shape_in);
 
 	// fill the audio buffer
 	for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
-		self->audio_buffer[i] = get_next_value(&self->osc1);
+		self->audio_buffer[i] = get_next_value(&self->osc);
 	}
 	self->audio_buffer_position = 0;
 
@@ -45,11 +45,11 @@ void render_audio_block(volatile struct synth *self){
 		for(int i=0; i<AUDIO_BUFFER_SIZE/2; i++){
 			// first half or second half
 			// oscillator
-			temp = get_next_value(&self->osc1);
+			temp = get_next_value(&self->osc);
 
 			// mixer
 
-			// filter
+			// filters
 
 			// adsr
 
@@ -65,116 +65,116 @@ void render_audio_block(volatile struct synth *self){
 
 void marry_had_a_little_lamb(volatile struct synth *self){
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_C][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_C][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(800);
 
 
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(800);
 
 
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_G][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_G][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_G][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_G][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(800);
 
 
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_C][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_C][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(800);
 
 
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_E][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_E][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_D][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_D][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
-	  self->osc1.f_out = NOTES[NOTE_C][4];
-	  set_oscillator_freq(&self->osc1, self->osc1.f_out);
+	  self->osc.f_out = NOTES[NOTE_C][4];
+	  set_oscillator_freq(&self->osc, self->osc.f_out);
 	  HAL_Delay(400);
 
 }
