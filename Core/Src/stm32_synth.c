@@ -7,6 +7,12 @@
 
 #include "stm32_synth.h"
 
+
+/**
+ * @brief   This will initialize the class of stm32 "class"
+ * @param   struct synth
+ * @retval  None.
+ */
 void init_stm32_synth(	volatile struct synth *self,
 						mode init_mode,
 						TIM_HandleTypeDef *htim,
@@ -25,6 +31,14 @@ void init_stm32_synth(	volatile struct synth *self,
 
 }
 
+/**
+ * @brief   This function will be called when the DAC is half way audio buffer (DMA) and when its
+ * 			at the end of the audio buffer..
+ *  		HAL_DACEx_ConvHalfCpltCallbackCh2: in main.c these functions call render audio block
+ *  		HAL_DACEx_ConvCpltCallbackCh2: in main.c these functions call render audio block
+ * @param   struct synth
+ * @retval  None.
+ */
 void render_audio_block(volatile struct synth *self){
 	if (self->synth_mode == SYNTH){
 		uint16_t temp = 0;
