@@ -632,12 +632,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 // We are half way through our memory, have to generate
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-	render_audio_block(&my_synth);
+	if (my_synth.synth_mode == SYNTH) {
+		render_audio_block(&my_synth);
+	}
 }
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-	render_audio_block(&my_synth);
+	if (my_synth.synth_mode == SYNTH) {
+		render_audio_block(&my_synth);
+	}
 }
 
 /* USER CODE END 4 */

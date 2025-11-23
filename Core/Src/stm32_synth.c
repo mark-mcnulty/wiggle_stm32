@@ -19,15 +19,24 @@ void init_stm32_synth(	volatile struct synth *self,
 						DAC_HandleTypeDef *hdac,
 						wave_shape shape_in) {
 
-	// begin constructing all the objects
-	HAL_TIM_Base_Start_IT(htim);
-	init_oscillator(&self->osc, htim, shape_in);
+	self->synth_mode = init_mode;
 
-	// fill the audio buffer
-	for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
-		self->audio_buffer[i] = get_next_value(&self->osc);
+	// Initialize the synth as a source
+	if (init_mode == SYNTH) {
+		HAL_TIM_Base_Start_IT(htim);
+		init_oscillator(&self->osc, htim, shape_in);
+
+		// fill the audio buffer
+		for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
+			self->audio_buffer[i] = get_next_value(&self->osc);
+		}
+		self->audio_buffer_position = 0;
 	}
-	self->audio_buffer_position = 0;
+
+	// initialize the synth as a effects unit
+	if (init_mode == EFFECTS){
+
+	}
 
 }
 
@@ -60,6 +69,8 @@ void render_audio_block(volatile struct synth *self){
 		if (self->audio_buffer_position == AUDIO_BUFFER_SIZE) {
 			self->audio_buffer_position = 0;
 		}
+	} else if (self->synth_mode == EFFECTS) {
+
 	}
 }
 
