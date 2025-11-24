@@ -1,5 +1,5 @@
-../Core/Src/seven_seg.c:30:6:seven_seg_init	8	static
-../Core/Src/seven_seg.c:83:6:seven_seg_set_value	0	static
-../Core/Src/seven_seg.c:93:9:seven_seg_get_value	0	static
-../Core/Src/seven_seg.c:97:6:send_segment_value_spi	8	static
-../Core/Src/seven_seg.c:52:6:seven_seg_update	16	static
+../Core/Src/seven_seg.c:56:6:seven_seg_init	8	static
+../Core/Src/seven_seg.c:109:6:seven_seg_set_value	0	static
+../Core/Src/seven_seg.c:114:9:seven_seg_get_value	0	static
+../Core/Src/seven_seg.c:118:6:send_segment_value_spi	8	static
+../Core/Src/seven_seg.c:78:6:seven_seg_update	16	static

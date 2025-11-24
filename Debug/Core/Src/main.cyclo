@@ -1,9 +1,9 @@
 ../Core/Src/main.c:545:13:MX_GPIO_Init	1
 ../Core/Src/main.c:527:13:MX_DMA_Init	1
-../Core/Src/main.c:610:6:HAL_TIM_PeriodElapsedCallback	1
-../Core/Src/main.c:633:6:HAL_DACEx_ConvHalfCpltCallbackCh2	2
-../Core/Src/main.c:640:6:HAL_DACEx_ConvCpltCallbackCh2	2
-../Core/Src/main.c:653:6:Error_Handler	1
+../Core/Src/main.c:610:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:620:6:HAL_DACEx_ConvHalfCpltCallbackCh2	2
+../Core/Src/main.c:627:6:HAL_DACEx_ConvCpltCallbackCh2	2
+../Core/Src/main.c:640:6:Error_Handler	1
 ../Core/Src/main.c:288:13:MX_ADC1_Init	1
 ../Core/Src/main.c:335:13:MX_DAC_Init	1
 ../Core/Src/main.c:375:13:MX_SPI1_Init	1

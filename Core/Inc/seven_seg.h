@@ -22,10 +22,17 @@ struct Seven_Seg {
 };
 
 // define the functions below
+
+// initializer
 void seven_seg_init(struct Seven_Seg *self);
+
+// update function called in ISR
 void seven_seg_update(struct Seven_Seg *self);
+
+// set the seven segment display value
 void seven_seg_set_value(struct Seven_Seg *self, uint8_t value);
-uint8_t seven_seg_get_value(struct Seven_Seg *self);
+
+// sends the seven segment value to the
 void send_segment_value_spi(struct Seven_Seg *self);
 
 #endif /* SEVEN_SEG_H_ */

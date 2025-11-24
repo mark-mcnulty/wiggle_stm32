@@ -50,11 +50,11 @@ const uint16_t digitKey[16] = {
 	0b1101100000000000, // c
 	0b1101111000000000, // d
 	0b1111100100000000, // e
-	0b1111000100000000, // f
+	0b0000000000000000, // f
 };
 
 void seven_seg_init(struct Seven_Seg *self) {
-	// initalize the struct to have values blank right now I'm having that be a 0xF
+	// Initialize the struct to have values blank right now I'm having that be a 0xF
 	self->value = 0xFF;
 
 	// set digit 0 to being the one on right now
@@ -108,16 +108,8 @@ void seven_seg_update(struct Seven_Seg *self) {
  */
 void seven_seg_set_value(struct Seven_Seg *self, uint8_t value) {
 	self->value = value;
-	if (self->activeDigit == 0x0) {
-		self->activeDigitValue = self->value & 0xF;
-	} else if (self->activeDigit == 0x1){
-		self->activeDigitValue = (self->value >> 4) & 0xF;
-	}
 
 	return;
-}
-uint8_t seven_seg_get_value(struct Seven_Seg *self){
-	return self->value;
 }
 
 void send_segment_value_spi(struct Seven_Seg *self){

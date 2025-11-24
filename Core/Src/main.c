@@ -610,23 +610,10 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// check which timer brought us here
 
-	// did our interrupt get triggered to update the tone?
-	/*
-	if (htim->Instance == TIM6){
-		// HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
-		uint16_t s = get_next_value(&my_tone);
-		HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2,DAC_ALIGN_12B_R, s);
-
-		HAL_GPIO_TogglePin(GPIOB, LED_OUT_Pin);
-	}
-	//*/
 	// did the seven segment display timer get us here?
-	/*
 	if (htim->Instance == TIM2){
 		seven_seg_update(&my_seven_seg);
 	}
-	*/
-
 }
 
 // We are half way through our memory, have to generate
