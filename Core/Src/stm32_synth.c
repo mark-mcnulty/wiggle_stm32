@@ -70,7 +70,11 @@ void render_audio_block(volatile struct synth *self){
 			self->audio_buffer_position = 0;
 		}
 	} else if (self->synth_mode == EFFECTS) {
+		// sample the waveform, should be in a DMA
 
+		// take the sampled DMA and apply the effect
+
+		//
 	}
 }
 
