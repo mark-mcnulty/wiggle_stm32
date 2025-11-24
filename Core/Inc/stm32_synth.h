@@ -30,7 +30,7 @@ struct synth {
 	struct Filter filt1;
 	struct ADSR adsr1;
 
-	struct Seven_Seg seven_seg1;
+	struct Seven_Seg display;
 
 	DAC_HandleTypeDef synth_hdac;
 	mode synth_mode;

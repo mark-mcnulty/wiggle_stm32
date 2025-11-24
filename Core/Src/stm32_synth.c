@@ -37,7 +37,6 @@ void init_stm32_synth(	volatile struct synth *self,
 	if (init_mode == EFFECTS){
 
 	}
-
 }
 
 /**
