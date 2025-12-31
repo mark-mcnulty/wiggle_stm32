@@ -16,7 +16,8 @@
 #include "filter.h"
 #include "adsr.h"
 
-#define AUDIO_BUFFER_SIZE 256
+#define AUDIO_BUFFER_SIZE   		256
+#define AUDIO_BUFFER_HALF_SIZE 		128
 
 typedef enum {
 	SYNTH,
@@ -36,10 +37,10 @@ struct synth {
 
 	struct Seven_Seg display;
 
-	DAC_HandleTypeDef synth_hdac;
 	mode synth_mode;
 
-	uint16_t audio_buffer[AUDIO_BUFFER_SIZE];
+	DAC_HandleTypeDef synth_hdac;
+	uint16_t audio_buffer_dac[AUDIO_BUFFER_SIZE];
 	uint8_t audio_buffer_position;
 
 	// make a adc audio buffer
@@ -47,6 +48,8 @@ struct synth {
 	volatile uint8_t adc_half_ready[2];		// [0]=first half, [1]=second half
 	volatile uint32_t adc_underruns[2];		// debug counter
 	volatile uint32_t adc_overruns[2];		// debug counter
+
+	uint16_t audio_buffer_sig_path[AUDIO_BUFFER_SIZE];
 };
 
 void init_stm32(		volatile struct synth *self,
@@ -59,6 +62,8 @@ void init_stm32(		volatile struct synth *self,
 						);
 
 void render_audio_block(volatile struct synth *self, uint8_t buffer_half);
+
+void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half);
 
 void marry_had_a_little_lamb(volatile struct synth *self);
 

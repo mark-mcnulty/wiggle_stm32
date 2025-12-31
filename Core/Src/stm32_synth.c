@@ -32,12 +32,12 @@ void init_stm32(	volatile struct synth *self,
 
 	// init the DAC
 	HAL_TIM_Base_Start(htimDAC);
-	HAL_DAC_Start_DMA(hdac, DAC_CHANNEL_2, (uint32_t)self->audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
+	HAL_DAC_Start_DMA(hdac, DAC_CHANNEL_2, (uint32_t)self->audio_buffer_dac, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
 	self->audio_buffer_position = 0;
 
 	// fill the DAC buffer
 	for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
-		self->audio_buffer[i] = 0;
+		self->audio_buffer_dac[i] = 0;
 	}
 
 	// Initialize the synth as a source
@@ -60,14 +60,15 @@ void init_stm32(	volatile struct synth *self,
  *  		HAL_DACEx_ConvHalfCpltCallbackCh2: in main.c these functions call render audio block
  *  		HAL_DACEx_ConvCpltCallbackCh2: in main.c these functions call render audio block
  * @param   struct synth
+ * @param   uint8_t buffer_half; this is the dac buffer half that sent us to this function.
  * @retval  None.
  */
 void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 	uint16_t temp = 0;
-	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_SIZE / 2;
+	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_HALF_SIZE;
 
 	if (self->synth_mode == SYNTH){
-		for(int i=0; i<AUDIO_BUFFER_SIZE/2; i++){
+		for(int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++){
 			// first half or second half
 			// oscillator
 			temp = get_next_value(&self->osc);
@@ -79,7 +80,7 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 			// adsr
 
 			// fill the buffer
-			self->audio_buffer[self->audio_buffer_position] = temp;
+			self->audio_buffer_dac[self->audio_buffer_position] = temp;
 
 			// update index
 			self->audio_buffer_position += 1;
@@ -89,17 +90,26 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 
 	else if (self->synth_mode == EFFECTS) {
 		// loop through the buffer
-		for(int i=0; i<AUDIO_BUFFER_SIZE/2; i++){
-			// dsp effect
-			self->audio_buffer[self->audio_buffer_position] =
-					self->audio_buffer_adc[self->audio_buffer_position]     ;
-					 //self->audio_buffer_adc[self->audio_buffer_position - 1] +
-					 //self->audio_buffer_adc[self->audio_buffer_position - 2]
-					 //) / 3;
+		for(int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++){
+			self->audio_buffer_dac[self->audio_buffer_position] =
+					self->audio_buffer_sig_path[self->audio_buffer_position] / 2;
 
+			self->audio_buffer_dac[self->audio_buffer_position] = self->audio_buffer_dac[self->audio_buffer_position] / 2;
 
 			self->audio_buffer_position += 1;
 		}
+	}
+}
+
+void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half){
+	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_HALF_SIZE;
+
+	// Buffer the ADC input
+	for (int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++) {
+
+		self->audio_buffer_sig_path[self->audio_buffer_position] = self->audio_buffer_adc[self->audio_buffer_position];
+
+		self->audio_buffer_position += 1;
 	}
 }
 

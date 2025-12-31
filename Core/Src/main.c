@@ -667,6 +667,8 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// check which timer brought us here
 
@@ -680,45 +682,55 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
     if (my_synth.synth_mode == EFFECTS) {
+
+    	// if the first half isn't ready from the ADC then increment our debug ADC debug register
         if (!my_synth.adc_half_ready[0]) {
             my_synth.adc_underruns[0]++;
-            // Optional: write silence for this half or just re-use old samples
-            // render_silence(&my_synth, 0);
         } else {
 			render_audio_block(&my_synth, 0);
         }
+
+        // set the ADC buffer ready flag back to 0
         my_synth.adc_half_ready[0] = 0;
     }
 }
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
+	// if the last half isn't ready from the ADC then increment our debug ADC debug register
     if (my_synth.synth_mode == EFFECTS) {
         if (!my_synth.adc_half_ready[1]) {
             my_synth.adc_underruns[1]++;
         } else {
 			render_audio_block(&my_synth, 1);
         }
+
+        // set the ADC buffer ready flag back to 0
         my_synth.adc_half_ready[1] = 0;
     }
 }
 
 
-// ADC callback
+// ADC interrupt when its at middle of filling buffer
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	if (my_synth.adc_half_ready[0]){
 		my_synth.adc_overruns[0]++;
 	}
 	my_synth.adc_half_ready[0] = 1;
+
+	buffer_adc_input(&my_synth, 0);
 }
 
+// ADC interrupt when its at end of filling buffer
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	if (my_synth.adc_half_ready[1]){
 		my_synth.adc_overruns[1]++;
 	}
 	my_synth.adc_half_ready[1] = 1;
+
+	buffer_adc_input(&my_synth, 1);
 }
 
 /* USER CODE END 4 */
