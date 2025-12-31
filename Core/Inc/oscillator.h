@@ -14,7 +14,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define LUT_SIZE 1024
 #define M_PI 3.14159265358979323846
 
 //

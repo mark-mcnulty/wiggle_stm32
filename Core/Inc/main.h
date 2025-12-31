@@ -32,6 +32,10 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+
+#define LUT_SIZE 1024
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

@@ -23,6 +23,10 @@ typedef enum {
 	EFFECTS
 } mode;
 
+typedef enum {
+	REVERB
+} effect_mode;
+
 
 struct synth {
 	struct Oscillator osc;
@@ -36,16 +40,25 @@ struct synth {
 	mode synth_mode;
 
 	uint16_t audio_buffer[AUDIO_BUFFER_SIZE];
-	uint16_t audio_buffer_position;
+	uint8_t audio_buffer_position;
+
+	// make a adc audio buffer
+	uint16_t audio_buffer_adc[AUDIO_BUFFER_SIZE];
+	volatile uint8_t adc_half_ready[2];		// [0]=first half, [1]=second half
+	volatile uint32_t adc_underruns[2];		// debug counter
+	volatile uint32_t adc_overruns[2];		// debug counter
 };
 
-void init_stm32_synth(	volatile struct synth *self,
-						mode init_mode,
-						TIM_HandleTypeDef *htim,
-						DAC_HandleTypeDef *hdac,
-						wave_shape shape_in);
+void init_stm32(		volatile struct synth *self,
+						mode init_mode,					// stm32 mode
+						TIM_HandleTypeDef *htimDAC,		// pointer to timer for dac
+						DAC_HandleTypeDef *hdac,		// pointer to dac
+						wave_shape shape_in,			// shape for dac (SYNTH)
+						TIM_HandleTypeDef *htimADC,		// timer for adc
+						ADC_HandleTypeDef *hadc1		// pointer to the adc
+						);
 
-void render_audio_block(volatile struct synth *self);
+void render_audio_block(volatile struct synth *self, uint8_t buffer_half);
 
 void marry_had_a_little_lamb(volatile struct synth *self);
 

@@ -25,6 +25,7 @@
 #include "stm32_synth.h"
 #include "seven_seg.h"
 #include "oscillator.h"
+#include "sampler.h"
 
 /* USER CODE END Includes */
 
@@ -81,6 +82,7 @@ static void MX_TIM8_Init(void);
 /* USER CODE BEGIN 0 */
 volatile struct synth my_synth __attribute__((used));
 struct Seven_Seg my_seven_seg;
+//struct Sample sample1;
 
 
 /*
@@ -138,24 +140,22 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
   seven_seg_init(&my_seven_seg);
 
-  // Initialize the oscillator
-  //init_oscillator((struct Oscillator*)&my_tone, &htim6, TRIANGLE);
-  //HAL_TIM_Base_Start_IT(&htim6);
-  init_stm32_synth(&my_synth, SYNTH, &htim6, &hdac, SINE);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2,  (uint32_t*)my_synth.audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
+  // Initialize the stm32 module
+  init_stm32(&my_synth, EFFECTS, &htim8, &hdac, SQUARE, &htim8, &hadc1);
+
 
   uint8_t buf[16];
   uint8_t idx  = 0;
   uint8_t ch;
 
-  uint8_t value = 0x22;
+  uint8_t value = 0x33;
   seven_seg_set_value(&my_seven_seg, value);
 
   int16_t increment = 1000;
-  my_synth.osc.f_out = 1000;
+  my_synth.osc.f_out = 1200;
 
   // TEST: check freq accuracy
-  my_synth.osc.f_out = 10000;
+  my_synth.osc.f_out = 1200;
   set_oscillator_freq(&my_synth.osc, my_synth.osc.f_out);
   HAL_Delay(400);
 
@@ -365,7 +365,7 @@ static void MX_DAC_Init(void)
 
   /** DAC channel OUT2 config
   */
-  sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
+  sConfig.DAC_Trigger = DAC_TRIGGER_T8_TRGO;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
   {
@@ -679,16 +679,46 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 // We are half way through our memory, have to generate
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-	if (my_synth.synth_mode == SYNTH) {
-		render_audio_block(&my_synth);
-	}
+    if (my_synth.synth_mode == EFFECTS) {
+        if (!my_synth.adc_half_ready[0]) {
+            my_synth.adc_underruns[0]++;
+            // Optional: write silence for this half or just re-use old samples
+            // render_silence(&my_synth, 0);
+        } else {
+			render_audio_block(&my_synth, 0);
+        }
+        my_synth.adc_half_ready[0] = 0;
+    }
 }
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-	if (my_synth.synth_mode == SYNTH) {
-		render_audio_block(&my_synth);
+    if (my_synth.synth_mode == EFFECTS) {
+        if (!my_synth.adc_half_ready[1]) {
+            my_synth.adc_underruns[1]++;
+        } else {
+			render_audio_block(&my_synth, 1);
+        }
+        my_synth.adc_half_ready[1] = 0;
+    }
+}
+
+
+// ADC callback
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	if (my_synth.adc_half_ready[0]){
+		my_synth.adc_overruns[0]++;
 	}
+	my_synth.adc_half_ready[0] = 1;
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	if (my_synth.adc_half_ready[1]){
+		my_synth.adc_overruns[1]++;
+	}
+	my_synth.adc_half_ready[1] = 1;
 }
 
 /* USER CODE END 4 */

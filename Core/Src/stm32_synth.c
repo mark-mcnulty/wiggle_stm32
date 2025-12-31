@@ -13,29 +13,44 @@
  * @param   struct synth
  * @retval  None.
  */
-void init_stm32_synth(	volatile struct synth *self,
+void init_stm32(	volatile struct synth *self,
 						mode init_mode,
-						TIM_HandleTypeDef *htim,
+						TIM_HandleTypeDef *htimDAC,
 						DAC_HandleTypeDef *hdac,
-						wave_shape shape_in) {
+						wave_shape shape_in,
+						TIM_HandleTypeDef *htimADC,		// timer for adc
+						ADC_HandleTypeDef *hadc1			// pointer to the adc
+						) {
 
 	self->synth_mode = init_mode;
+	self->adc_half_ready[0] = 0;
+	self->adc_half_ready[1] = 0;
+	self->adc_underruns[0] = 0;
+	self->adc_underruns[1] = 0;
+	self->adc_overruns[0] = 0;
+	self->adc_overruns[1] = 0;
+
+	// init the DAC
+	HAL_TIM_Base_Start(htimDAC);
+	HAL_DAC_Start_DMA(hdac, DAC_CHANNEL_2, (uint32_t)self->audio_buffer, AUDIO_BUFFER_SIZE, DAC_ALIGN_12B_R);
+	self->audio_buffer_position = 0;
+
+	// fill the DAC buffer
+	for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
+		self->audio_buffer[i] = 0;
+	}
 
 	// Initialize the synth as a source
 	if (init_mode == SYNTH) {
-		HAL_TIM_Base_Start_IT(htim);
-		init_oscillator(&self->osc, htim, shape_in);
-
-		// fill the audio buffer
-		for (int i=0; i<AUDIO_BUFFER_SIZE; i++){
-			self->audio_buffer[i] = get_next_value(&self->osc);
-		}
-		self->audio_buffer_position = 0;
+		init_oscillator(&self->osc, htimDAC, shape_in);
 	}
 
 	// initialize the synth as a effects unit
-	if (init_mode == EFFECTS){
-
+	else if (init_mode == EFFECTS){
+		// get the ADC setup
+		HAL_TIM_Base_Start_IT(htimADC);
+		HAL_ADCEx_Calibration_Start(hadc1);
+		HAL_ADC_Start_DMA(hadc1, (uint32_t)self->audio_buffer_adc, AUDIO_BUFFER_SIZE);
 	}
 }
 
@@ -47,9 +62,11 @@ void init_stm32_synth(	volatile struct synth *self,
  * @param   struct synth
  * @retval  None.
  */
-void render_audio_block(volatile struct synth *self){
+void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
+	uint16_t temp = 0;
+	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_SIZE / 2;
+
 	if (self->synth_mode == SYNTH){
-		uint16_t temp = 0;
 		for(int i=0; i<AUDIO_BUFFER_SIZE/2; i++){
 			// first half or second half
 			// oscillator
@@ -61,19 +78,28 @@ void render_audio_block(volatile struct synth *self){
 
 			// adsr
 
-			self->audio_buffer[i + self->audio_buffer_position] = temp;
-		}
-		// change the buffer position
-		self->audio_buffer_position += AUDIO_BUFFER_SIZE / 2;
-		if (self->audio_buffer_position == AUDIO_BUFFER_SIZE) {
-			self->audio_buffer_position = 0;
-		}
-	} else if (self->synth_mode == EFFECTS) {
-		// sample the waveform, should be in a DMA
+			// fill the buffer
+			self->audio_buffer[self->audio_buffer_position] = temp;
 
-		// take the sampled DMA and apply the effect
+			// update index
+			self->audio_buffer_position += 1;
+		}
+	}
 
-		//
+
+	else if (self->synth_mode == EFFECTS) {
+		// loop through the buffer
+		for(int i=0; i<AUDIO_BUFFER_SIZE/2; i++){
+			// dsp effect
+			self->audio_buffer[self->audio_buffer_position] =
+					self->audio_buffer_adc[self->audio_buffer_position]     ;
+					 //self->audio_buffer_adc[self->audio_buffer_position - 1] +
+					 //self->audio_buffer_adc[self->audio_buffer_position - 2]
+					 //) / 3;
+
+
+			self->audio_buffer_position += 1;
+		}
 	}
 }
 

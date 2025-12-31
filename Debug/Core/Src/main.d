@@ -32,7 +32,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/stm32_synth.h ../Core/Inc/notes.h ../Core/Inc/seven_seg.h \
  ../Core/Inc/oscillator.h ../Core/Inc/main.h ../Core/Inc/mixer.h \
  ../Core/Inc/filter.h ../Core/Inc/adsr.h ../Core/Inc/seven_seg.h \
- ../Core/Inc/oscillator.h
+ ../Core/Inc/oscillator.h ../Core/Inc/sampler.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -74,3 +74,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/adsr.h:
 ../Core/Inc/seven_seg.h:
 ../Core/Inc/oscillator.h:
+../Core/Inc/sampler.h:
