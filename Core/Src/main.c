@@ -141,14 +141,14 @@ int main(void)
   seven_seg_init(&my_seven_seg);
 
   // Initialize the stm32 module
-  init_stm32(&my_synth, EFFECTS, &htim8, &hdac, SQUARE, &htim8, &hadc1);
+  init_stm32(&my_synth, SYNTH, &htim8, &hdac, SQUARE, &htim8, &hadc1);
 
 
   uint8_t buf[16];
   uint8_t idx  = 0;
   uint8_t ch;
 
-  uint8_t value = 0x33;
+  uint8_t value = 0x01;
   seven_seg_set_value(&my_seven_seg, value);
 
   int16_t increment = 1000;
@@ -169,6 +169,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  // TEST: increment the seven segments display
+	  /*
+	  value += 0x01;
+	  seven_seg_set_value(&my_seven_seg, value);
+	  HAL_Delay(1000);
+	  */
+
 
 
 	  // TEST: testing out freq adjustment
@@ -186,7 +193,7 @@ int main(void)
 	  //*/
 
 	  // TEST: play marry had a little lamb
-	  //marry_had_a_little_lamb(&my_synth);
+	  marry_had_a_little_lamb(&my_synth);
 	  //*/
 
 
@@ -717,9 +724,10 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 	if (my_synth.adc_half_ready[0]){
 		my_synth.adc_overruns[0]++;
 	}
+	buffer_adc_input(&my_synth, 0);
+
 	my_synth.adc_half_ready[0] = 1;
 
-	buffer_adc_input(&my_synth, 0);
 }
 
 // ADC interrupt when its at end of filling buffer
@@ -728,9 +736,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 	if (my_synth.adc_half_ready[1]){
 		my_synth.adc_overruns[1]++;
 	}
-	my_synth.adc_half_ready[1] = 1;
 
 	buffer_adc_input(&my_synth, 1);
+
+	my_synth.adc_half_ready[1] = 1;
+
 }
 
 /* USER CODE END 4 */

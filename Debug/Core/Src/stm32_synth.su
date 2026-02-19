@@ -1,4 +1,4 @@
 ../Core/Src/stm32_synth.c:16:6:init_stm32	32	static
 ../Core/Src/stm32_synth.c:66:6:render_audio_block	16	static
-../Core/Src/stm32_synth.c:104:6:buffer_adc_input	0	static
-../Core/Src/stm32_synth.c:116:6:marry_had_a_little_lamb	24	static
+../Core/Src/stm32_synth.c:114:6:buffer_adc_input	0	static
+../Core/Src/stm32_synth.c:126:6:marry_had_a_little_lamb	24	static

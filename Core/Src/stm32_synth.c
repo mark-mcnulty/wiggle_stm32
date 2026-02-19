@@ -66,6 +66,8 @@ void init_stm32(	volatile struct synth *self,
 void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 	uint16_t temp = 0;
 	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_HALF_SIZE;
+	self->adc_half_ready[0] = 1;
+	self->adc_half_ready[1] = 1;
 
 	if (self->synth_mode == SYNTH){
 		for(int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++){
@@ -91,10 +93,18 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 	else if (self->synth_mode == EFFECTS) {
 		// loop through the buffer
 		for(int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++){
+			/* if ( self->audio_buffer_position == 0 || self->audio_buffer_position == 128 || self->audio_buffer_position == 1 || self->audio_buffer_position == 129) {
+				self->audio_buffer_dac[self->audio_buffer_position] =
+												self->audio_buffer_sig_path[self->audio_buffer_position]  * 3;
+			} else { */
 			self->audio_buffer_dac[self->audio_buffer_position] =
-					self->audio_buffer_sig_path[self->audio_buffer_position] / 2;
+								self->audio_buffer_sig_path[self->audio_buffer_position];
+								//self->audio_buffer_sig_path[self->audio_buffer_position - 1] +
+								//self->audio_buffer_sig_path[self->audio_buffer_position - 2];
+			//}
+								//self->audio_buffer_sig_path[self->audio_buffer_position - 3];
 
-			self->audio_buffer_dac[self->audio_buffer_position] = self->audio_buffer_dac[self->audio_buffer_position] / 2;
+			self->audio_buffer_dac[self->audio_buffer_position] = self->audio_buffer_dac[self->audio_buffer_position] / 1;
 
 			self->audio_buffer_position += 1;
 		}

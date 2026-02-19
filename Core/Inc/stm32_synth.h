@@ -17,7 +17,7 @@
 #include "adsr.h"
 
 #define AUDIO_BUFFER_SIZE   		256
-#define AUDIO_BUFFER_HALF_SIZE 		128
+#define AUDIO_BUFFER_HALF_SIZE 		(AUDIO_BUFFER_SIZE/2)
 
 typedef enum {
 	SYNTH,
@@ -39,17 +39,21 @@ struct synth {
 
 	mode synth_mode;
 
+	// DAC variables
 	DAC_HandleTypeDef synth_hdac;
 	uint16_t audio_buffer_dac[AUDIO_BUFFER_SIZE];
+	uint8_t rd;
 	uint8_t audio_buffer_position;
 
-	// make a adc audio buffer
-	uint16_t audio_buffer_adc[AUDIO_BUFFER_SIZE];
+	// ADC variables
+	volatile uint16_t audio_buffer_adc[AUDIO_BUFFER_SIZE];
+	uint16_t wr;
 	volatile uint8_t adc_half_ready[2];		// [0]=first half, [1]=second half
-	volatile uint32_t adc_underruns[2];		// debug counter
-	volatile uint32_t adc_overruns[2];		// debug counter
+	uint32_t adc_underruns[2];		// debug counter
+	uint32_t adc_overruns[2];		// debug counter
 
-	uint16_t audio_buffer_sig_path[AUDIO_BUFFER_SIZE];
+	// signal path variables
+	uint16_t audio_buffer_sig_path[AUDIO_BUFFER_SIZE];		// buffer that ADC input goes and DAC output pulls from
 };
 
 void init_stm32(		volatile struct synth *self,
