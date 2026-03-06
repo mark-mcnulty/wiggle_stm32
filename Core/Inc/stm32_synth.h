@@ -25,7 +25,8 @@ typedef enum {
 } mode;
 
 typedef enum {
-	REVERB
+	EFFECT_BYPASS,
+	EFFECT_MOVING_AVG
 } effect_mode;
 
 
@@ -38,6 +39,7 @@ struct synth {
 	struct Seven_Seg display;
 
 	mode synth_mode;
+	effect_mode active_effect;
 
 	// DAC variables
 	DAC_HandleTypeDef synth_hdac;
@@ -54,6 +56,7 @@ struct synth {
 
 	// signal path variables
 	uint16_t audio_buffer_sig_path[AUDIO_BUFFER_SIZE];		// buffer that ADC input goes and DAC output pulls from
+	uint16_t effect_prev_sample;
 };
 
 void init_stm32(		volatile struct synth *self,
@@ -68,6 +71,8 @@ void init_stm32(		volatile struct synth *self,
 void render_audio_block(volatile struct synth *self, uint8_t buffer_half);
 
 void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half);
+
+void set_effect_mode(volatile struct synth *self, effect_mode mode_in);
 
 void marry_had_a_little_lamb(volatile struct synth *self);
 

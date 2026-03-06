@@ -36,6 +36,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+// Single-output test mode selector: switch between SYNTH and EFFECTS.
+#define ACTIVE_AUDIO_MODE EFFECTS
 
 /* USER CODE END PD */
 
@@ -141,7 +143,7 @@ int main(void)
   seven_seg_init(&my_seven_seg);
 
   // Initialize the stm32 module
-  init_stm32(&my_synth, EFFECTS, &htim8, &hdac, SQUARE, &htim8, &hadc1);
+  init_stm32(&my_synth, ACTIVE_AUDIO_MODE, &htim8, &hdac, SQUARE, &htim8, &hadc1);
 
 
   uint8_t buf[16];
@@ -192,8 +194,10 @@ int main(void)
 
 	  //*/
 
-	  // TEST: play marry had a little lamb
-	  marry_had_a_little_lamb(&my_synth);
+	  // TEST: play marry had a little lamb (SYNTH mode only)
+	  if (my_synth.synth_mode == SYNTH) {
+		  marry_had_a_little_lamb(&my_synth);
+	  }
 	  //*/
 
 
@@ -688,33 +692,36 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 // We are half way through our memory, have to generate
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-    if (my_synth.synth_mode == EFFECTS) {
-
-    	// if the first half isn't ready from the ADC then increment our debug ADC debug register
-        if (!my_synth.adc_half_ready[0]) {
-            my_synth.adc_underruns[0]++;
-        } else {
+	if (my_synth.synth_mode == SYNTH) {
+		render_audio_block(&my_synth, 0);
+	} else if (my_synth.synth_mode == EFFECTS) {
+		// For effects mode, wait for ADC half-buffer readiness.
+		if (!my_synth.adc_half_ready[0]) {
+			my_synth.adc_underruns[0]++;
+		} else {
 			render_audio_block(&my_synth, 0);
-        }
+		}
 
-        // set the ADC buffer ready flag back to 0
-        my_synth.adc_half_ready[0] = 0;
-    }
+		// set the ADC buffer ready flag back to 0
+		my_synth.adc_half_ready[0] = 0;
+	}
 }
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac)
 {
-	// if the last half isn't ready from the ADC then increment our debug ADC debug register
-    if (my_synth.synth_mode == EFFECTS) {
-        if (!my_synth.adc_half_ready[1]) {
-            my_synth.adc_underruns[1]++;
-        } else {
+	if (my_synth.synth_mode == SYNTH) {
+		render_audio_block(&my_synth, 1);
+	} else if (my_synth.synth_mode == EFFECTS) {
+		// For effects mode, wait for ADC half-buffer readiness.
+		if (!my_synth.adc_half_ready[1]) {
+			my_synth.adc_underruns[1]++;
+		} else {
 			render_audio_block(&my_synth, 1);
-        }
+		}
 
-        // set the ADC buffer ready flag back to 0
-        my_synth.adc_half_ready[1] = 0;
-    }
+		// set the ADC buffer ready flag back to 0
+		my_synth.adc_half_ready[1] = 0;
+	}
 }
 
 

@@ -1,4 +1,4 @@
 ../Core/Src/stm32_synth.c:16:6:init_stm32	4
 ../Core/Src/stm32_synth.c:66:6:render_audio_block	5
-../Core/Src/stm32_synth.c:112:6:buffer_adc_input	2
-../Core/Src/stm32_synth.c:124:6:marry_had_a_little_lamb	1
+../Core/Src/stm32_synth.c:104:6:buffer_adc_input	2
+../Core/Src/stm32_synth.c:116:6:marry_had_a_little_lamb	1
