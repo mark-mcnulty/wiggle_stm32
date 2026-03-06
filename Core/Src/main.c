@@ -38,6 +38,7 @@
 /* USER CODE BEGIN PD */
 // Single-output test mode selector: switch between SYNTH and EFFECTS.
 #define ACTIVE_AUDIO_MODE EFFECTS
+#define ACTIVE_EFFECT_MODE EFFECT_MOVING_AVG
 
 /* USER CODE END PD */
 
@@ -144,6 +145,7 @@ int main(void)
 
   // Initialize the stm32 module
   init_stm32(&my_synth, ACTIVE_AUDIO_MODE, &htim8, &hdac, SQUARE, &htim8, &hadc1);
+  set_effect_mode(&my_synth, ACTIVE_EFFECT_MODE);
 
 
   uint8_t buf[16];

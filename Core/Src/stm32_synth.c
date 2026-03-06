@@ -29,6 +29,8 @@ void init_stm32(	volatile struct synth *self,
 	self->adc_underruns[1] = 0;
 	self->adc_overruns[0] = 0;
 	self->adc_overruns[1] = 0;
+	self->effect_prev_sample = 0;
+	set_effect_mode(self, EFFECT_BYPASS);
 
 	// init the DAC
 	HAL_TIM_Base_Start(htimDAC);
@@ -65,7 +67,6 @@ void init_stm32(	volatile struct synth *self,
  */
 void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 	uint16_t temp = 0;
-	static uint16_t previous_effect_sample = 0;
 	self->audio_buffer_position = buffer_half * AUDIO_BUFFER_HALF_SIZE;
 
 	if (self->synth_mode == SYNTH){
@@ -94,11 +95,39 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 		for(int i=0; i<AUDIO_BUFFER_HALF_SIZE; i++){
 			uint16_t current_index = self->audio_buffer_position;
 			uint32_t current_sample = self->audio_buffer_sig_path[current_index];
-			self->audio_buffer_dac[current_index] = (uint16_t)((current_sample + previous_effect_sample) / 2u);
-			previous_effect_sample = (uint16_t)current_sample;
+
+			switch (self->active_effect) {
+				case EFFECT_MOVING_AVG:
+					self->audio_buffer_dac[current_index] =
+							(uint16_t)((current_sample + self->effect_prev_sample) / 2u);
+					self->effect_prev_sample = (uint16_t)current_sample;
+					break;
+
+				case EFFECT_BYPASS:
+				default:
+					self->audio_buffer_dac[current_index] = (uint16_t)current_sample;
+					self->effect_prev_sample = (uint16_t)current_sample;
+					break;
+			}
+
 			self->audio_buffer_position += 1;
 		}
 	}
+}
+
+void set_effect_mode(volatile struct synth *self, effect_mode mode_in)
+{
+	switch (mode_in) {
+		case EFFECT_MOVING_AVG:
+		case EFFECT_BYPASS:
+			self->active_effect = mode_in;
+			break;
+		default:
+			self->active_effect = EFFECT_BYPASS;
+			break;
+	}
+
+	self->effect_prev_sample = 0;
 }
 
 void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half){
