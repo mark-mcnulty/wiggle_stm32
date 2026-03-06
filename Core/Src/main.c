@@ -141,7 +141,7 @@ int main(void)
   seven_seg_init(&my_seven_seg);
 
   // Initialize the stm32 module
-  init_stm32(&my_synth, SYNTH, &htim8, &hdac, SQUARE, &htim8, &hadc1);
+  init_stm32(&my_synth, EFFECTS, &htim8, &hdac, SQUARE, &htim8, &hadc1);
 
 
   uint8_t buf[16];
