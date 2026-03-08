@@ -7,7 +7,6 @@
 
 #include "stm32_synth.h"
 
-
 /**
  * @brief   This will initialize the class of stm32 "class"
  * @param   struct synth
@@ -29,7 +28,7 @@ void init_stm32(	volatile struct synth *self,
 	self->adc_underruns[1] = 0;
 	self->adc_overruns[0] = 0;
 	self->adc_overruns[1] = 0;
-	self->effect_prev_sample = 0;
+	set_moving_avg_taps(self, 2);
 	set_effect_mode(self, EFFECT_BYPASS);
 
 	// init the DAC
@@ -98,15 +97,42 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half){
 
 			switch (self->active_effect) {
 				case EFFECT_MOVING_AVG:
+					/*
+					 * N-tap moving average: smooths the signal by outputting the mean of the
+					 * last N samples. Uses a ring buffer (moving_avg_history) and a running
+					 * sum so each sample is O(1). Output = sum / count (count ramps 1..N at startup).
+					 */
+					/*
+					 * Initial fill: we need to fill moving_avg_history with the first N samples
+					 * without subtracting anything from the sum. Until count reaches taps, we only
+					 * add; once the ring is full we switch to steady state and subtract the oldest.
+					 */
+					if (self->moving_avg_count < self->moving_avg_taps) {
+						self->moving_avg_count++;
+					} else {
+						/*
+						 * Steady state: the index runs around the ring, so the slot at
+						 * moving_avg_index is always the one that holds the oldest sample.
+						 * Subtract it from the sum before we overwrite it with the new sample.
+						 */
+						self->moving_avg_sum -= self->moving_avg_history[self->moving_avg_index];
+					}
+					self->moving_avg_history[self->moving_avg_index] = (uint16_t)current_sample;
+					self->moving_avg_sum += current_sample;
+
+					/* Advance ring buffer write position (wrap at moving_avg_taps) */
+					self->moving_avg_index++;
+					if (self->moving_avg_index >= self->moving_avg_taps) {
+						self->moving_avg_index = 0;
+					}
+
 					self->audio_buffer_dac[current_index] =
-							(uint16_t)((current_sample + self->effect_prev_sample) / 2u);
-					self->effect_prev_sample = (uint16_t)current_sample;
+							(uint16_t)(self->moving_avg_sum / self->moving_avg_count);
 					break;
 
 				case EFFECT_BYPASS:
 				default:
 					self->audio_buffer_dac[current_index] = (uint16_t)current_sample;
-					self->effect_prev_sample = (uint16_t)current_sample;
 					break;
 			}
 
@@ -127,7 +153,30 @@ void set_effect_mode(volatile struct synth *self, effect_mode mode_in)
 			break;
 	}
 
-	self->effect_prev_sample = 0;
+	reset_moving_average_state(self);
+}
+
+static void reset_moving_average_state(volatile struct synth *self)
+{
+	self->moving_avg_index = 0;
+	self->moving_avg_count = 0;
+	self->moving_avg_sum = 0;
+	for (int i = 0; i < MOVING_AVG_MAX_TAPS; i++) {
+		self->moving_avg_history[i] = 0;
+	}
+}
+
+void set_moving_avg_taps(volatile struct synth *self, uint8_t taps)
+{
+	if (taps == 0u) {
+		self->moving_avg_taps = 1u;
+	} else if (taps > MOVING_AVG_MAX_TAPS) {
+		self->moving_avg_taps = MOVING_AVG_MAX_TAPS;
+	} else {
+		self->moving_avg_taps = taps;
+	}
+
+	reset_moving_average_state(self);
 }
 
 void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half){

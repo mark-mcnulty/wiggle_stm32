@@ -18,7 +18,7 @@
 
 #define AUDIO_BUFFER_SIZE   		256
 #define AUDIO_BUFFER_HALF_SIZE 		(AUDIO_BUFFER_SIZE/2)
-#define EFFECT_MOVING_AVG_MAX_TAPS 	32
+#define MOVING_AVG_MAX_TAPS			16
 
 typedef enum {
 	SYNTH,
@@ -57,7 +57,11 @@ struct synth {
 
 	// signal path variables
 	uint16_t audio_buffer_sig_path[AUDIO_BUFFER_SIZE];		// buffer that ADC input goes and DAC output pulls from
-	uint16_t effect_prev_sample;
+	uint8_t moving_avg_taps;
+	uint8_t moving_avg_index;
+	uint8_t moving_avg_count;
+	uint32_t moving_avg_sum;
+	uint16_t moving_avg_history[MOVING_AVG_MAX_TAPS];
 };
 
 void init_stm32(		volatile struct synth *self,
@@ -74,6 +78,9 @@ void render_audio_block(volatile struct synth *self, uint8_t buffer_half);
 void buffer_adc_input(volatile struct synth *self, uint8_t buffer_half);
 
 void set_effect_mode(volatile struct synth *self, effect_mode mode_in);
+void set_moving_avg_taps(volatile struct synth *self, uint8_t taps);
+
+static void reset_moving_average_state(volatile struct synth *self);
 
 void marry_had_a_little_lamb(volatile struct synth *self);
 
