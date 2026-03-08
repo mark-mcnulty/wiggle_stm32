@@ -18,7 +18,7 @@
 
 #define AUDIO_BUFFER_SIZE   		256
 #define AUDIO_BUFFER_HALF_SIZE 		(AUDIO_BUFFER_SIZE/2)
-#define MOVING_AVG_MAX_TAPS			16
+#define MOVING_AVG_MAX_TAPS			32
 
 typedef enum {
 	SYNTH,

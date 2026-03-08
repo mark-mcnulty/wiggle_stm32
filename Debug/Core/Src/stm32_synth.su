@@ -1,5 +1,7 @@
-../Core/Src/stm32_synth.c:68:6:render_audio_block	16	static
-../Core/Src/stm32_synth.c:118:6:set_effect_mode	0	static
-../Core/Src/stm32_synth.c:16:6:init_stm32	32	static
-../Core/Src/stm32_synth.c:133:6:buffer_adc_input	0	static
-../Core/Src/stm32_synth.c:145:6:marry_had_a_little_lamb	24	static
+../Core/Src/stm32_synth.c:159:13:reset_moving_average_state	0	static
+../Core/Src/stm32_synth.c:67:6:render_audio_block	16	static
+../Core/Src/stm32_synth.c:144:6:set_effect_mode	8	static
+../Core/Src/stm32_synth.c:169:6:set_moving_avg_taps	8	static
+../Core/Src/stm32_synth.c:15:6:init_stm32	32	static
+../Core/Src/stm32_synth.c:182:6:buffer_adc_input	0	static
+../Core/Src/stm32_synth.c:194:6:marry_had_a_little_lamb	24	static

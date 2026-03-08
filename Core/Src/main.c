@@ -39,7 +39,7 @@
 // Single-output test mode selector: switch between SYNTH and EFFECTS.
 #define ACTIVE_AUDIO_MODE EFFECTS
 #define ACTIVE_EFFECT_MODE EFFECT_MOVING_AVG
-#define ACTIVE_MOVING_AVG_TAPS 4
+#define ACTIVE_MOVING_AVG_TAPS 32
 
 /* USER CODE END PD */
 
