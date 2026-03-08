@@ -1,5 +1,6 @@
 Core/Src/stm32_synth.o: ../Core/Src/stm32_synth.c \
- ../Core/Inc/stm32_synth.h ../Core/Inc/notes.h ../Core/Inc/seven_seg.h \
+ ../Core/Inc/stm32_synth.h ../Core/Inc/notes.h ../Core/Inc/effects.h \
+ ../Core/Inc/seven_seg.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -34,6 +35,7 @@ Core/Src/stm32_synth.o: ../Core/Src/stm32_synth.c \
  ../Core/Inc/filter.h ../Core/Inc/adsr.h
 ../Core/Inc/stm32_synth.h:
 ../Core/Inc/notes.h:
+../Core/Inc/effects.h:
 ../Core/Inc/seven_seg.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
