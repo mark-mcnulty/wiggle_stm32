@@ -14,7 +14,8 @@
 
 typedef enum {
 	EFFECT_BYPASS,
-	EFFECT_MOVING_AVG
+	EFFECT_MOVING_AVG,
+	EFFECT_BIT_CRUSHER
 } effect_mode;
 
 struct effect_state {

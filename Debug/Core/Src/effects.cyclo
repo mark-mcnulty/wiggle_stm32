@@ -1,4 +1,4 @@
 ../Core/Src/effects.c:10:13:reset_moving_average_state	2
 ../Core/Src/effects.c:20:6:effects_set_mode	2
-../Core/Src/effects.c:35:6:effects_set_moving_avg_taps	3
-../Core/Src/effects.c:48:6:effects_process_sample	4
+../Core/Src/effects.c:36:6:effects_set_moving_avg_taps	3
+../Core/Src/effects.c:49:6:effects_process_sample	5

@@ -21,6 +21,7 @@ void effects_set_mode(volatile struct effect_state *state, effect_mode mode_in)
 {
 	switch (mode_in) {
 		case EFFECT_MOVING_AVG:
+		case EFFECT_BIT_CRUSHER:
 		case EFFECT_BYPASS:
 			state->active_effect = mode_in;
 			break;
@@ -68,6 +69,16 @@ void effects_process_sample(volatile struct effect_state *state, uint32_t input_
 			}
 
 			*output_sample = (uint16_t)(state->moving_avg_sum / state->moving_avg_count);
+			break;
+		}
+		case EFFECT_BIT_CRUSHER: {
+			/*
+			 * Bit crusher: reduce resolution to 8 bits. DAC is 12-bit in a 16-bit unit;
+			 * we quantize to 256 levels (8 bits) and output in the 12-bit range.
+			 */
+			uint32_t in12 = input_sample & 0xFFFu;
+			uint16_t q8 = (uint16_t)(in12 >> 4);
+			*output_sample = (uint16_t)(q8 << 4);
 			break;
 		}
 		case EFFECT_BYPASS:
