@@ -3,7 +3,7 @@
 Firmware for a small STM32F1-based audio board: either a LUT-driven oscillator into the onboard DAC, or a short effects chain on whatever comes in on the ADC. The Cube/HAL setup is real; mixer, filter, ADSR, and sampler are mostly placeholders for now (see [Code layout](#code-layout)).
 
 **MCU:** STM32F103RCT6  
-**IDE:** STM32CubeIDE (GCC). There is also an IAR project under [`EWARM/`](EWARM/) if you use that instead.
+**IDE:** STM32CubeIDE (GCC).
 
 ## Requirements
 
